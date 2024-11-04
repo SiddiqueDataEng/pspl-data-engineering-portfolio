@@ -1,0 +1,9 @@
+# Install Apache Airflow with official constraints so versions match what Airflow tests against.
+# Windows (from repo root, after setup.ps1):
+#   .\scripts\install-airflow.ps1
+# Linux / macOS:
+#   ./scripts/install-airflow.sh
+#
+# Do not pip install this file without --constraint (see scripts).
+
+apache-airflow==2.10.4

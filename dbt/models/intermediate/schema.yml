@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: int_beneficiaries_payments
+    description: >
+      Enriches each beneficiary record with aggregated payment statistics.
+      Performs a LEFT JOIN between stg_beneficiaries and stg_payments so that
+      beneficiaries with no payment history are retained with zero-valued metrics.
+    columns:
+      - name: beneficiary_key
+        description: Unique identifier for the beneficiary (renamed from beneficiary_id in staging).
+        tests:
+          - not_null
+          - unique
+      - name: cnic
+        description: 13-digit national identity card number of the beneficiary.
+      - name: name
+        description: Full name of the beneficiary.
+      - name: gender
+        description: Gender of the beneficiary (Female or Male).
+      - name: age
+        description: Age of the beneficiary in years.
+      - name: district
+        description: Pakistani district where the beneficiary resides.
+      - name: tehsil
+        description: Sub-district administrative unit.
+      - name: union_council
+        description: Lowest administrative unit within a tehsil.
+      - name: program
+        description: Social protection program the beneficiary is enrolled in.
+      - name: registration_date
+        description: Date the beneficiary was registered in the program.
+      - name: poverty_score
+        description: Poverty score used for eligibility determination (0–100 scale).
+      - name: family_size
+        description: Number of family members in the beneficiary household.
+      - name: is_disabled
+        description: Whether the beneficiary has a registered disability.
+      - name: is_eligible
+        description: Whether the beneficiary is currently eligible for payments.
+      - name: bank_account
+        description: Whether the beneficiary has a bank account (Yes/No).
+      - name: total_payments
+        description: Total number of payment transactions for this beneficiary.
+        tests:
+          - not_null
+      - name: total_amount
+        description: Total PKR amount disbursed to this beneficiary across all payments.
+        tests:
+          - not_null
+      - name: last_payment_date
+        description: Date of the most recent payment to this beneficiary. Null if no payments exist.
+
+  - name: int_refugees_assistance
+    description: >
+      Enriches each Afghan refugee record with aggregated assistance delivery statistics.
+      Performs a LEFT JOIN between stg_afghan_refugees and stg_refugee_assistance so that
+      refugees with no assistance records are retained with zero-valued metrics.
+    columns:
+      - name: refugee_id
+        description: Unique identifier for the Afghan refugee.
+        tests:
+          - not_null
+          - unique
+      - name: unhcr_case_number
+        description: UNHCR case number in PAK-XXXXXX format.
+      - name: name
+        description: Full name of the refugee.
+      - name: gender
+        description: Gender of the refugee.
+      - name: age
+        description: Age of the refugee in years.
+      - name: province_of_origin
+        description: Afghan province the refugee originated from.
+      - name: arrival_wave
+        description: Categorical label for the wave of arrival into Pakistan.
+      - name: documentation_type
+        description: Type of documentation held (PoR Card, ACC, Undocumented, Passport).
+      - name: camp_settlement
+        description: Camp or settlement where the refugee resides.
+      - name: host_district
+        description: Pakistani district hosting the refugee.
+      - name: family_size
+        description: Number of family members in the refugee household.
+      - name: vulnerability_score
+        description: Vulnerability score on a 0–10 scale; higher values indicate greater vulnerability.
+      - name: is_unaccompanied_minor
+        description: Whether the refugee is an unaccompanied minor.
+      - name: has_disability
+        description: Whether the refugee has a registered disability.
+      - name: enrolled_in_program
+        description: Name of the assistance program the refugee is enrolled in.
+      - name: return_intention
+        description: Refugee's stated intention to return to Afghanistan (Yes/No/Undecided).
+      - name: registration_date
+        description: Date the refugee was registered with UNHCR.
+      - name: last_verification
+        description: Date of the most recent UNHCR verification.
+      - name: total_assistance_usd
+        description: Total USD value of all assistance delivered to this refugee.
+        tests:
+          - not_null
+      - name: delivery_count
+        description: Total number of assistance delivery transactions for this refugee.
+        tests:
+          - not_null
+      - name: last_delivery_date
+        description: Date of the most recent assistance delivery. Null if no deliveries exist.
+
+  - name: int_donor_program_aggregates
+    description: >
+      Aggregates donor report records by donor and program to produce total committed
+      and disbursed amounts, utilization percentage, and disbursement date ranges.
+      Used as the primary input for mart_donor_budget_vs_actual.
+    columns:
+      - name: donor
+        description: Name of the donor organization.
+        tests:
+          - not_null
+      - name: program
+        description: Name of the program funded by the donor.
+        tests:
+          - not_null
+      - name: total_committed
+        description: Total amount committed by the donor for this program (PKR).
+        tests:
+          - not_null
+      - name: total_disbursed
+        description: Total amount actually disbursed by the donor for this program (PKR).
+        tests:
+          - not_null
+      - name: utilization_pct
+        description: >
+          Percentage of committed funds that have been disbursed.
+          Calculated as total_disbursed / NULLIF(total_committed, 0) * 100.
+          Null when total_committed is zero.
+      - name: report_count
+        description: Number of donor report records contributing to this aggregate.
+      - name: first_disbursement_date
+        description: Earliest disbursement date across all reports for this donor-program pair.
+      - name: last_disbursement_date
+        description: Most recent disbursement date across all reports for this donor-program pair.

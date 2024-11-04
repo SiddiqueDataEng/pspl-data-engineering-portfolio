@@ -1,0 +1,86 @@
+version: 2
+
+sources:
+  - name: silver
+    description: "Silver Delta Lake tables — cleaned and deduplicated by the PySpark notebook."
+    tables:
+      - name: beneficiaries
+        description: "Cleaned beneficiary records from the PSPL social protection programme."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/beneficiaries')"
+        loaded_at_field: registration_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: payments
+        description: "Cash transfer payment transactions."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/payments')"
+        loaded_at_field: payment_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: surveys
+        description: "Beneficiary survey responses and metric values."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/surveys')"
+        loaded_at_field: survey_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: inventory
+        description: "Warehouse inventory items and stock levels."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/inventory')"
+        loaded_at_field: last_updated
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: complaints
+        description: "Beneficiary complaints and resolution tracking."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/complaints')"
+        loaded_at_field: complaint_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: donor_reports
+        description: "Donor commitments and disbursement records by programme."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/donor_reports')"
+        loaded_at_field: disbursement_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: afghan_refugees
+        description: "Afghan refugee registration and vulnerability data."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/afghan_refugees')"
+        loaded_at_field: registration_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: refugee_assistance
+        description: "Assistance deliveries to Afghan refugees (cash and in-kind)."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/refugee_assistance')"
+        loaded_at_field: delivery_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: refugee_protection
+        description: "Protection incident cases for Afghan refugees."
+        meta:
+          external_location: "delta_scan('{{ env_var('DELTA_LAKE_PATH') }}/silver/refugee_protection')"
+        loaded_at_field: incident_date
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}

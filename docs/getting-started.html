@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Getting started — Social protection data engineering portfolio</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1a1d26;
+      --muted: #5c6370;
+      --border: #d8dde6;
+      --accent: #0b5fff;
+      --accent-soft: #e8f0ff;
+      --ok: #0d6b4c;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12141a;
+        --card: #1c1f27;
+        --text: #e8eaef;
+        --muted: #9aa3b5;
+        --border: #2e3444;
+        --accent: #6ea8ff;
+        --accent-soft: #1a2740;
+        --ok: #5bd6a6;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      padding: 2rem 1.25rem 1.25rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; font-weight: 650; }
+    .lede { color: var(--muted); margin: 0; max-width: 65ch; }
+    main { max-width: 900px; margin: 0 auto; padding: 0 1.25rem 3rem; }
+    nav.toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    nav.toc h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 0.75rem; color: var(--muted); }
+    nav.toc ul { margin: 0; padding-left: 1.1rem; }
+    nav.toc li { margin: 0.35rem 0; }
+    nav.toc a { color: var(--accent); text-decoration: none; }
+    nav.toc a:hover { text-decoration: underline; }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.35rem;
+      margin-bottom: 1.25rem;
+    }
+    section h2 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+    p { margin: 0.5rem 0; color: var(--text); }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0 0.5rem; }
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .panel { display: none; margin-top: 0.75rem; }
+    .panel.active { display: block; }
+    .cmd {
+      position: relative;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 3.25rem 0.85rem 0.9rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0.65rem 0 0;
+    }
+    .copy {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .copy:hover { border-color: var(--accent); }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding: 0.35rem 0 0.35rem 0.85rem;
+      margin: 0.75rem 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .ok { color: var(--ok); font-weight: 600; }
+    footer { max-width: 900px; margin: 0 auto; padding: 0 1.25rem 2rem; color: var(--muted); font-size: 0.88rem; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Getting started</h1>
+    <p class="lede">
+      Local portfolio: Bronze/Silver Delta Lake with PySpark, Gold layer with dbt-duckdb, and KPI SQL.
+      Start with the <a href="README.md">documentation hub</a> and <a href="CONCEPTS_AND_PURPOSE.md">concepts</a>; use <a href="LEARNING_GUIDE.md">LEARNING_GUIDE.md</a> <strong>Section 5</strong> for step-by-step setup; this page is for copy/paste commands.
+    </p>
+  </header>
+  <main>
+    <nav class="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ul>
+        <li><a href="#docs-hub">Documentation hub</a></li>
+        <li><a href="#prereq">Prerequisites</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#pipeline">Run the full pipeline</a></li>
+        <li><a href="#piecemeal">Run one stage at a time</a></li>
+        <li><a href="#dashboard">Streamlit dashboard</a></li>
+        <li><a href="#tests">Tests and docs</a></li>
+        <li><a href="#clean">Clean artifacts</a></li>
+      </ul>
+    </nav>
+
+    <section id="docs-hub">
+      <h2>Documentation hub</h2>
+      <p>For <strong>why</strong> each layer exists (Bronze / Silver / Gold), Spark vs DuckDB, and interview narrative, read <a href="README.md">docs/README.md</a> and <a href="CONCEPTS_AND_PURPOSE.md">CONCEPTS_AND_PURPOSE.md</a>. For JupyterLab, notebooks, and the onboarding tour, see <a href="JUPYTER_AND_NOTEBOOKS.md">JUPYTER_AND_NOTEBOOKS.md</a>.</p>
+    </section>
+
+    <section id="prereq">
+      <h2>Prerequisites</h2>
+      <p>Python <span class="ok">3.10+</span> (3.10 or 3.11 recommended for PySpark test stability), Java <span class="ok">11+</span> with <code>JAVA_HOME</code>, Git, and internet access on first Spark run (Maven resolves Delta JARs).</p>
+      <p class="muted">From repo root, paths below assume you have already <code>cd</code> into the repository folder.</p>
+    </section>
+
+    <section id="install">
+      <h2>Install dependencies</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" aria-selected="true" data-tab="bash-install">Bash</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="ps-install">PowerShell</button>
+      </div>
+      <div class="panel active" id="bash-install" role="tabpanel">
+        <pre class="cmd" data-copy>python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</pre>
+      </div>
+      <div class="panel" id="ps-install" role="tabpanel">
+        <pre class="cmd" data-copy>python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt</pre>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <h2>Run the full pipeline</h2>
+      <p class="muted">Order: ingest Bronze → notebook Silver → dbt build/test → KPI SQL against DuckDB.</p>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" aria-selected="true" data-tab="bash-all">Bash (make)</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="ps-all">PowerShell (script)</button>
+      </div>
+      <div class="panel active" id="bash-all" role="tabpanel">
+        <pre class="cmd" data-copy>make all</pre>
+        <p class="note">Requires <code>make</code>, <code>duckdb</code> CLI, and a Unix-style shell for the KPI loop in the Makefile.</p>
+      </div>
+      <div class="panel" id="ps-all" role="tabpanel">
+        <pre class="cmd" data-copy># From repository root
+.\scripts\run-full-pipeline.ps1</pre>
+        <p class="note">Script runs the same stages as <code>make all</code> but uses PowerShell-friendly commands. Install Jupyter components from <code>requirements.txt</code> first.</p>
+      </div>
+    </section>
+
+    <section id="piecemeal">
+      <h2>Run one stage at a time</h2>
+      <h3 class="muted" style="font-size:0.95rem;margin:0 0 0.35rem;">1. Bronze ingest (PySpark + Delta)</h3>
+      <pre class="cmd" data-copy>python ingest/ingest.py</pre>
+      <p class="muted" style="margin-top:0.5rem;">Single dataset (example): <code>python ingest/ingest.py --dataset beneficiaries</code></p>
+
+      <h3 class="muted" style="font-size:0.95rem;margin:1rem 0 0.35rem;">2. Silver notebook (non-interactive)</h3>
+      <p class="note">On Windows, <code>jupyter</code> is often not on <code>PATH</code> unless the venv is activated. Prefer the script below, or call Jupyter through the venv Python.</p>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" aria-selected="true" data-tab="bash-silver">Bash (venv active)</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="ps-silver">PowerShell</button>
+      </div>
+      <div class="panel active" id="bash-silver" role="tabpanel">
+        <pre class="cmd" data-copy>python -m jupyter nbconvert --to notebook --execute notebooks/delta_lake_operations.ipynb --output-dir notebooks --output delta_lake_operations_executed.ipynb</pre>
+      </div>
+      <div class="panel" id="ps-silver" role="tabpanel">
+        <pre class="cmd" data-copy>.\scripts\run-spark-notebook.ps1</pre>
+        <p class="muted" style="margin-top:0.65rem;">Manual (same as script, no <code>jupyter</code> on PATH):</p>
+        <pre class="cmd" data-copy>.\.venv\Scripts\python.exe -m jupyter nbconvert --to notebook --execute notebooks/delta_lake_operations.ipynb --output-dir notebooks --output delta_lake_operations_executed.ipynb</pre>
+      </div>
+
+      <h3 class="muted" style="font-size:0.95rem;margin:1rem 0 0.35rem;">3. dbt (DuckDB)</h3>
+      <p class="note">Manual <code>dbt</code> from PowerShell needs <code>DELTA_LAKE_PATH</code> pointing at your <code>delta_lake</code> folder with forward slashes (the full pipeline script sets this). Example: <code>$env:DELTA_LAKE_PATH = ($PWD.Path + "\delta_lake").Replace("\", "/")</code></p>
+      <pre class="cmd" data-copy>cd dbt
+dbt run
+dbt test
+cd ..</pre>
+
+      <h3 class="muted" style="font-size:0.95rem;margin:1rem 0 0.35rem;">4. KPI SQL files</h3>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" aria-selected="true" data-tab="bash-sql">Bash</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="ps-sql">PowerShell</button>
+      </div>
+      <div class="panel active" id="bash-sql" role="tabpanel">
+        <pre class="cmd" data-copy>make sql-kpis</pre>
+      </div>
+      <div class="panel" id="ps-sql" role="tabpanel">
+        <pre class="cmd" data-copy>.\scripts\run-sql-kpis.ps1</pre>
+      </div>
+    </section>
+
+    <section id="dashboard">
+      <h2>Streamlit KPI dashboard</h2>
+      <p class="muted">Requires a successful <code>dbt run</code> so <code>pspl.duckdb</code> exists at the repository root. Opens Plotly charts over marts (payments, donors, protection, refugee assistance).</p>
+      <pre class="cmd" data-copy>.\scripts\run-dashboard.ps1</pre>
+      <p class="muted" style="margin-top:0.75rem;">Any shell with venv active: <code>streamlit run dashboard/streamlit_app.py</code> from repo root.</p>
+    </section>
+
+    <section id="tests">
+      <h2>Tests and dbt documentation</h2>
+      <pre class="cmd" data-copy>pytest tests/ -v</pre>
+      <p class="muted" style="margin-top:0.75rem;">Optional: example Java setup then pytest on Windows: <code>.\run_tests.ps1</code></p>
+      <pre class="cmd" data-copy style="margin-top:0.75rem;">cd dbt
+dbt docs generate
+dbt docs serve
+cd ..</pre>
+    </section>
+
+    <section id="clean">
+      <h2>Clean generated artifacts</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" aria-selected="true" data-tab="bash-clean">Bash</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="ps-clean">PowerShell</button>
+      </div>
+      <div class="panel active" id="bash-clean" role="tabpanel">
+        <pre class="cmd" data-copy>make clean</pre>
+      </div>
+      <div class="panel" id="ps-clean" role="tabpanel">
+        <pre class="cmd" data-copy>.\scripts\clean-artifacts.ps1</pre>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>Hub: <a href="README.md">docs/README.md</a> · Deep dive: <a href="LEARNING_GUIDE.md">LEARNING_GUIDE.md</a> · Concepts: <a href="CONCEPTS_AND_PURPOSE.md">CONCEPTS_AND_PURPOSE.md</a> · Project overview: <a href="../README.md">README.md</a></p>
+  </footer>
+  <script>
+    (function () {
+      function addCopyButtons() {
+        document.querySelectorAll('pre.cmd[data-copy]').forEach(function (pre) {
+          var text = pre.textContent.trimEnd();
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'copy';
+          btn.textContent = 'Copy';
+          btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(text).then(function () {
+              btn.textContent = 'Copied';
+              setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+            });
+          });
+          pre.appendChild(btn);
+        });
+      }
+      function wireTabs(root) {
+        root.querySelectorAll('.tabs').forEach(function (tablist) {
+          var tabs = [].slice.call(tablist.querySelectorAll('.tab'));
+          var panelIds = tabs.map(function (t) { return t.getAttribute('data-tab'); });
+          tabs.forEach(function (tab, i) {
+            tab.addEventListener('click', function () {
+              tabs.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+              tab.setAttribute('aria-selected', 'true');
+              panelIds.forEach(function (id) {
+                var p = document.getElementById(id);
+                if (p) p.classList.toggle('active', id === tab.getAttribute('data-tab'));
+              });
+            });
+          });
+        });
+      }
+      addCopyButtons();
+      wireTabs(document);
+    })();
+  </script>
+</body>
+</html>

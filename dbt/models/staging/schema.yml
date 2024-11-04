@@ -1,0 +1,311 @@
+version: 2
+
+models:
+  - name: stg_beneficiaries
+    description: >
+      Staged beneficiary records sourced from the Silver Delta table.
+      Renames beneficiary_id to beneficiary_key, casts date and numeric columns,
+      and replaces empty strings with null in all string columns.
+    columns:
+      - name: beneficiary_key
+        description: Unique surrogate key for the beneficiary (renamed from beneficiary_id in the source).
+        tests:
+          - not_null
+          - unique
+      - name: cnic
+        description: 13-digit Computerised National Identity Card number of the beneficiary.
+      - name: name
+        description: Full name of the beneficiary.
+      - name: gender
+        description: Gender of the beneficiary.
+        tests:
+          - accepted_values:
+              values: ['Female', 'Male']
+      - name: phone
+        description: Contact phone number of the beneficiary.
+      - name: age
+        description: Age of the beneficiary in years.
+      - name: district
+        description: Pakistani district where the beneficiary resides.
+      - name: tehsil
+        description: Sub-district administrative unit within the district.
+      - name: union_council
+        description: Lowest administrative unit within a tehsil.
+      - name: program
+        description: Social protection program the beneficiary is enrolled in.
+      - name: bank_account
+        description: Whether the beneficiary has a bank account (Yes/No).
+      - name: family_size
+        description: Number of family members in the beneficiary household.
+      - name: registration_date
+        description: Date the beneficiary was registered in the program.
+      - name: last_payment_date
+        description: Date of the most recent payment received by the beneficiary.
+      - name: poverty_score
+        description: Poverty score used for eligibility determination (0–100 scale).
+      - name: is_eligible
+        description: Whether the beneficiary is currently eligible for payments.
+      - name: is_disabled
+        description: Whether the beneficiary has a registered disability.
+
+  - name: stg_payments
+    description: >
+      Staged payment transaction records sourced from the Silver Delta table.
+      Casts amount to BIGINT and payment_date to DATE.
+    columns:
+      - name: payment_id
+        description: Unique identifier for the payment transaction.
+        tests:
+          - not_null
+          - unique
+      - name: beneficiary_id
+        description: Foreign key referencing the beneficiary who received the payment.
+        tests:
+          - not_null
+      - name: payment_mode
+        description: Mode of payment (e.g., Bank Transfer, Mobile Money, Cash).
+      - name: payment_status
+        description: Current status of the payment transaction.
+        tests:
+          - accepted_values:
+              values: ['Success', 'Failed', 'Pending']
+      - name: bank_code
+        description: Bank code associated with the payment transaction.
+      - name: transaction_ref
+        description: Unique transaction reference number issued by the payment processor.
+      - name: disbursement_center
+        description: Name of the disbursement center where the payment was processed.
+      - name: amount
+        description: Payment amount in Pakistani Rupees (PKR), cast to BIGINT.
+      - name: payment_date
+        description: Date on which the payment was processed.
+
+  - name: stg_surveys
+    description: >
+      Staged beneficiary survey records sourced from the Silver Delta table.
+      Casts survey_date to DATE and metric_value to INTEGER.
+      Renames Silver columns metric_type and field_worker to metric_name and surveyor for analyst-facing names.
+    columns:
+      - name: survey_id
+        description: Unique identifier for the survey record.
+        tests:
+          - not_null
+          - unique
+      - name: beneficiary_id
+        description: Foreign key referencing the beneficiary who was surveyed.
+        tests:
+          - not_null
+      - name: metric_name
+        description: Survey metric category from source field metric_type (e.g., disbursements_received, income_generated).
+      - name: surveyor
+        description: Field worker who conducted the survey (from source field field_worker).
+      - name: district
+        description: Pakistani district where the survey was conducted.
+      - name: program
+        description: Social protection program associated with this survey.
+      - name: survey_date
+        description: Date on which the survey was conducted.
+      - name: metric_value
+        description: Numeric value recorded for the survey metric, cast to INTEGER.
+
+  - name: stg_inventory
+    description: >
+      Staged inventory records sourced from the Silver Delta table.
+      Casts quantity and reorder_level to INTEGER and last_updated to TIMESTAMP.
+    columns:
+      - name: item_id
+        description: Unique identifier for the inventory item.
+        tests:
+          - not_null
+          - unique
+      - name: item_name
+        description: Descriptive name of the inventory item.
+      - name: item_type
+        description: Category or type of the inventory item (e.g., Food, NFI, Medical).
+      - name: unit
+        description: Unit of measurement for the item (e.g., kg, pieces, litres).
+      - name: warehouse
+        description: Name or identifier of the warehouse where the item is stored.
+      - name: program
+        description: Program associated with this inventory item.
+      - name: supplier
+        description: Name of the supplier who provided the item.
+      - name: quantity
+        description: Current stock quantity of the item, cast to INTEGER.
+      - name: reorder_level
+        description: Minimum stock level below which a reorder alert is triggered, cast to INTEGER.
+      - name: last_updated
+        description: Timestamp of the most recent inventory update, cast to TIMESTAMP.
+
+  - name: stg_complaints
+    description: >
+      Staged complaint records sourced from the Silver Delta table.
+      Casts complaint_date and resolution_date to DATE.
+    columns:
+      - name: complaint_id
+        description: Unique identifier for the complaint record.
+        tests:
+          - not_null
+          - unique
+      - name: cnic
+        description: 13-digit CNIC of the complainant used to link to a beneficiary.
+      - name: category
+        description: Category of the complaint (e.g., Payment Delay, Exclusion Error, Harassment).
+      - name: description
+        description: Free-text description of the complaint submitted by the complainant.
+      - name: status
+        description: Current resolution status of the complaint.
+        tests:
+          - accepted_values:
+              values: ['Open', 'In Progress', 'Resolved', 'Rejected']
+      - name: assigned_to
+        description: Name or identifier of the staff member assigned to resolve the complaint.
+      - name: district
+        description: Pakistani district where the complaint was filed.
+      - name: complaint_date
+        description: Date on which the complaint was submitted.
+      - name: resolution_date
+        description: Date on which the complaint was resolved. Null if still open.
+
+  - name: stg_donor_reports
+    description: >
+      Staged donor report records sourced from the Silver Delta table.
+      Casts amount_committed and amount_disbursed to DOUBLE and disbursement_date to DATE.
+    columns:
+      - name: report_id
+        description: Unique identifier for the donor report record.
+        tests:
+          - not_null
+          - unique
+      - name: donor
+        description: Name of the donor organization that submitted the report.
+      - name: program
+        description: Name of the program funded by the donor.
+      - name: reporting_period
+        description: Reporting period covered by this donor report (e.g., Q1 2024).
+      - name: currency
+        description: Currency in which the committed and disbursed amounts are denominated.
+      - name: amount_committed
+        description: Total amount committed by the donor for this reporting period, cast to DOUBLE.
+      - name: amount_disbursed
+        description: Total amount actually disbursed by the donor for this reporting period, cast to DOUBLE.
+      - name: disbursement_date
+        description: Date on which the disbursement was made, cast to DATE.
+
+  - name: stg_afghan_refugees
+    description: >
+      Staged Afghan refugee records sourced from the Silver Delta table.
+      Casts registration_date and last_verification to DATE and vulnerability_score to DOUBLE.
+    columns:
+      - name: refugee_id
+        description: Unique identifier for the Afghan refugee record.
+        tests:
+          - not_null
+          - unique
+      - name: unhcr_case_number
+        description: UNHCR case number in PAK-XXXXXX format assigned to the refugee.
+      - name: name
+        description: Full name of the refugee.
+      - name: gender
+        description: Gender of the refugee.
+        tests:
+          - accepted_values:
+              values: ['Female', 'Male']
+      - name: age
+        description: Age of the refugee in years.
+      - name: province_of_origin
+        description: Afghan province from which the refugee originated.
+      - name: arrival_wave
+        description: Categorical label for the wave of arrival into Pakistan (e.g., Pre-2021, Post-2021).
+      - name: documentation_type
+        description: Type of documentation held by the refugee (PoR Card, ACC, Undocumented, Passport).
+      - name: camp_settlement
+        description: Name of the camp or settlement where the refugee currently resides.
+      - name: host_district
+        description: Pakistani district hosting the refugee.
+      - name: family_size
+        description: Number of family members in the refugee household.
+      - name: is_unaccompanied_minor
+        description: Whether the refugee is an unaccompanied minor (boolean).
+      - name: has_disability
+        description: Whether the refugee has a registered disability (boolean).
+      - name: enrolled_in_program
+        description: Name of the assistance program the refugee is currently enrolled in.
+      - name: return_intention
+        description: Refugee's stated intention to return to Afghanistan.
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No', 'Undecided']
+      - name: registration_date
+        description: Date the refugee was registered with UNHCR, cast to DATE.
+      - name: last_verification
+        description: Date of the most recent UNHCR verification, cast to DATE.
+      - name: vulnerability_score
+        description: Vulnerability score on a 0–10 scale; higher values indicate greater vulnerability, cast to DOUBLE.
+
+  - name: stg_refugee_assistance
+    description: >
+      Staged refugee assistance delivery records sourced from the Silver Delta table.
+      Casts amount_usd and amount_pkr to DOUBLE and delivery_date to DATE.
+    columns:
+      - name: assistance_id
+        description: Unique identifier for the assistance delivery record.
+        tests:
+          - not_null
+          - unique
+      - name: refugee_id
+        description: Foreign key referencing the refugee who received the assistance.
+        tests:
+          - not_null
+      - name: program
+        description: Refugee assistance program under which the delivery was made.
+      - name: modality
+        description: Delivery modality (e.g., Cash Transfer, Food Voucher, In-Kind).
+      - name: delivery_point
+        description: Distribution channel or venue (e.g., Camp Distribution, Bank Transfer, Hawala).
+      - name: status
+        description: Delivery outcome (Delivered, Pending, Failed).
+      - name: implementing_org
+        description: UN agency or NGO implementing the assistance.
+      - name: host_district
+        description: Pakistani district where the assistance was delivered.
+      - name: amount_usd
+        description: Value of the assistance delivered in US Dollars, cast to DOUBLE.
+      - name: amount_pkr
+        description: Value of the assistance delivered in Pakistani Rupees, cast to DOUBLE.
+      - name: delivery_date
+        description: Date on which the assistance was delivered, cast to DATE.
+
+  - name: stg_refugee_protection
+    description: >
+      Staged refugee protection case records sourced from the Silver Delta table.
+      Casts incident_date and follow_up_date to DATE.
+    columns:
+      - name: case_id
+        description: Unique identifier for the protection case record.
+        tests:
+          - not_null
+          - unique
+      - name: refugee_id
+        description: Foreign key referencing the refugee involved in the protection case.
+        tests:
+          - not_null
+      - name: incident_type
+        description: Type of protection incident (e.g., GBV, Child Protection, Legal Aid, SGBV).
+      - name: risk_level
+        description: Risk classification assigned to the protection case.
+        tests:
+          - accepted_values:
+              values: ['Critical', 'High', 'Medium', 'Low']
+      - name: case_status
+        description: Current status of the protection case (Open, Under Review, Referred, Closed).
+      - name: reported_to
+        description: Entity to whom the incident was reported (e.g., UNHCR, Police).
+      - name: assigned_officer
+        description: Case worker assigned to the case (from source field case_worker).
+      - name: host_district
+        description: Pakistani district where the protection incident occurred.
+      - name: incident_date
+        description: Date on which the protection incident occurred, cast to DATE.
+      - name: follow_up_date
+        description: Date scheduled for the next follow-up action on the case, cast to DATE.

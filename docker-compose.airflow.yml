@@ -1,0 +1,30 @@
+# Local Apache Airflow (recommended on Windows; upstream Airflow is not supported on native Windows).
+#
+# From the repository root:
+#   docker compose -f docker-compose.airflow.yml up
+#
+# UI: http://localhost:8080  (first `standalone` boot prints admin credentials in the container logs.)
+#
+# The repo is mounted at /opt/project so dbt reads the same delta_lake/ and pspl.duckdb as on the host.
+# The weekly full PySpark pipeline DAG is disabled in this profile (set PORTFOLIO_INCLUDE_FULL_PIPELINE_DAG=true
+# only if you extend the image with Java, Spark, and Make).
+
+services:
+  airflow:
+    image: apache/airflow:2.10.4-python3.11
+    environment:
+      PORTFOLIO_REPO_ROOT: /opt/project
+      PORTFOLIO_INCLUDE_FULL_PIPELINE_DAG: "false"
+      AIRFLOW_HOME: /opt/project/airflow/airflow_home
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/project/airflow/dags
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__LOGGING__CREATE_LATEST_LOG_LINK: "false"
+      _PIP_ADDITIONAL_REQUIREMENTS: >-
+        dbt-core==1.8.4 dbt-duckdb==1.8.1 duckdb==1.5.2 pandas==2.2.2 pyarrow==16.1.0
+    volumes:
+      - .:/opt/project
+    ports:
+      - "8080:8080"
+    working_dir: /opt/project
+    command: standalone
+    user: "${AIRFLOW_UID:-50000}:0"

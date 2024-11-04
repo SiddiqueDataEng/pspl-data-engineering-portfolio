@@ -1,0 +1,161 @@
+version: 2
+
+models:
+  - name: mart_payment_kpis
+    description: >
+      Monthly payment KPI summary aggregated by district and program.
+      Computes total and successful payment counts, success rate, and a
+      3-month rolling average success rate using a window function.
+      Joins stg_payments with stg_beneficiaries to resolve district and program context.
+    columns:
+      - name: district
+        description: Pakistani district where the payments were made.
+        tests:
+          - not_null
+      - name: program
+        description: Social protection program under which the payments were disbursed.
+        tests:
+          - not_null
+      - name: reporting_month
+        description: First day of the calendar month for which these KPIs are computed.
+        tests:
+          - not_null
+      - name: total_payments
+        description: Total number of payment transactions in this district/program/month.
+        tests:
+          - not_null
+      - name: successful_payments
+        description: Number of payment transactions with status = 'Success' in this district/program/month.
+        tests:
+          - not_null
+      - name: success_rate
+        description: >
+          Ratio of successful payments to total payments (0.0–1.0).
+          Calculated as successful_payments / NULLIF(total_payments, 0).
+        tests:
+          - not_null
+      - name: rolling_3m_avg_success_rate
+        description: >
+          3-month rolling average of success_rate, partitioned by district and program,
+          ordered by reporting_month. Uses ROWS BETWEEN 2 PRECEDING AND CURRENT ROW.
+        tests:
+          - not_null
+
+  - name: mart_donor_budget_vs_actual
+    description: >
+      Budget vs actual disbursement summary by donor and program.
+      Derived from int_donor_program_aggregates. Adds variance (committed minus disbursed)
+      and a utilization rank within each program using a RANK() window function.
+    columns:
+      - name: donor
+        description: Name of the donor organization.
+        tests:
+          - not_null
+      - name: program
+        description: Name of the program funded by the donor.
+        tests:
+          - not_null
+      - name: total_committed
+        description: Total amount committed by the donor for this program (PKR).
+        tests:
+          - not_null
+      - name: total_disbursed
+        description: Total amount actually disbursed by the donor for this program (PKR).
+        tests:
+          - not_null
+      - name: variance
+        description: >
+          Difference between committed and disbursed amounts (total_committed - total_disbursed).
+          Positive values indicate underspend; negative values indicate overspend.
+        tests:
+          - not_null
+      - name: utilization_pct
+        description: >
+          Percentage of committed funds disbursed, calculated as
+          total_disbursed / NULLIF(total_committed, 0) * 100.
+          Null when total_committed is zero.
+      - name: utilization_rank
+        description: >
+          Rank of this donor within its program, ordered by utilization_pct descending.
+          Rank 1 = highest utilization within the program. Computed using RANK() window function.
+        tests:
+          - not_null
+
+  - name: mart_refugee_assistance_summary
+    description: >
+      Aggregated summary of refugee assistance delivery by program, modality, and host district.
+      Joins int_refugees_assistance (for vulnerability scores) with stg_refugee_assistance
+      (for transaction-level detail) to produce beneficiary counts, USD totals, and
+      average vulnerability scores per delivery segment.
+    columns:
+      - name: program
+        description: Refugee assistance program under which deliveries were made.
+        tests:
+          - not_null
+      - name: modality
+        description: Delivery modality (e.g., Cash Transfer, Food Voucher, In-Kind).
+        tests:
+          - not_null
+      - name: host_district
+        description: Pakistani district where the assistance was delivered.
+        tests:
+          - not_null
+      - name: total_beneficiaries
+        description: Count of distinct refugees who received assistance in this program/modality/district segment.
+        tests:
+          - not_null
+      - name: total_amount_usd
+        description: Total USD value of all assistance delivered in this segment.
+        tests:
+          - not_null
+      - name: avg_amount_usd
+        description: >
+          Average USD amount per delivery transaction in this segment.
+          Calculated as total_amount_usd / NULLIF(delivery_count, 0).
+        tests:
+          - not_null
+      - name: delivery_count
+        description: Total number of individual delivery transactions in this segment.
+        tests:
+          - not_null
+      - name: avg_vulnerability_score
+        description: >
+          Average vulnerability score (0–10) of refugees who received assistance in this segment.
+          Higher values indicate a more vulnerable population.
+
+  - name: mart_protection_caseload
+    description: >
+      Monthly protection caseload summary by incident type, risk level, and host district.
+      Computes open and total case counts per month, plus a cumulative running total
+      of cases partitioned by incident type using a window function.
+    columns:
+      - name: incident_type
+        description: Type of protection incident (e.g., GBV, Child Protection, Legal).
+        tests:
+          - not_null
+      - name: risk_level
+        description: Risk classification of the incident (Critical, High, Medium, Low).
+        tests:
+          - not_null
+      - name: host_district
+        description: Pakistani district where the protection incident occurred.
+        tests:
+          - not_null
+      - name: incident_month
+        description: First day of the calendar month in which the incidents occurred.
+        tests:
+          - not_null
+      - name: open_cases
+        description: Number of cases with a status other than 'Closed' in this segment and month.
+        tests:
+          - not_null
+      - name: total_cases
+        description: Total number of protection cases (all statuses) in this segment and month.
+        tests:
+          - not_null
+      - name: cumulative_cases
+        description: >
+          Running total of total_cases partitioned by incident_type, ordered by incident_month.
+          Uses ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW.
+        tests:
+          - not_null

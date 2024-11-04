@@ -1,0 +1,26 @@
+
+  
+  create view "pspl"."main"."stg_payments__dbt_tmp" as (
+    with source as (
+    select * from delta_scan('C:/Users/Siddique/Desktop/Pakistani social protection landscape/delta_lake/silver/payments')
+),
+
+transformed as (
+    select
+        payment_id,
+        beneficiary_id,
+        payment_mode,
+        payment_status,
+        bank_code,
+        transaction_ref,
+        disbursement_center,
+
+        -- Type casts
+        CAST(amount AS BIGINT)          as amount,
+        CAST(payment_date AS DATE)      as payment_date
+
+    from source
+)
+
+select * from transformed
+  );

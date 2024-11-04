@@ -1,0 +1,12 @@
+pspl:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../pspl.duckdb
+      # Single-thread + preload delta avoids Windows races: parallel models each
+      # auto-installing the delta extension ("delta_scan already exists") and
+      # DuckDB hitting Delta files still held by the Spark JVM after nbconvert.
+      threads: 1
+      extensions:
+        - delta
